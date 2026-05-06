@@ -1,11 +1,93 @@
-# TimerTrigger - C<span>#</span>
+# GasBet Function
 
-The `TimerTrigger` makes it incredibly easy to have your functions executed on a schedule. This sample demonstrates a simple use case of calling your function every 5 minutes.
+Azure Function App fuer geplante Hintergrundjobs im GasBet-Projekt. Die Function App fuehrt zeitgesteuert interne Backend-Endpunkte aus, um Quoten zu aktualisieren, Events zu erzeugen, Events zu sperren, Ergebnisse aufzuloesen und alte Snapshots zu loeschen.
 
-## How it works
+## Tech Stack
 
-For a `TimerTrigger` to work, you provide a schedule in the form of a [cron expression](https://en.wikipedia.org/wiki/Cron#CRON_expression)(See the link for full details). A cron expression is a string with 6 separate expressions which represent a given schedule via patterns. The pattern we use to represent every 5 minutes is `0 */5 * * * *`. This, in plain text, means: "When seconds is equal to 0, minutes is divisible by 5, for any hour, day of the month, month, day of the week, or year".
+- .NET 10
+- Azure Functions v4
+- Azure Functions Isolated Worker
+- Timer Trigger
+- HttpClient Factory
+- Application Insights
 
-## Learn more
+## Was die Function App macht
 
-<TODO> Documentation
+Die Function App enthaelt mehrere Timer-Trigger, die interne API-Endpunkte des Backends per `POST` aufrufen. Zur Authentifizierung wird ein interner API-Key ueber den Header `X-Internal-Key` mitgegeben.
+
+Aktuell sind folgende Jobs vorhanden:
+
+| Function | Zeitplan | Zweck | Endpoint |
+| --- | --- | --- | --- |
+| `PollPrices` | jede Minute | Holt aktuelle Preis-/Quotendaten | `/api/internal/poll-prices` |
+| `CreateEvents` | stuendlich um Minute 0 | Erzeugt neue Events | `/api/internal/create-events` |
+| `LockEvents` | stuendlich bei Minute 0, Sekunde 5 | Sperrt Events rechtzeitig vor Start | `/api/internal/lock-events` |
+| `ResolveEvents` | stuendlich bei Minute 0, Sekunde 10 | Loest abgeschlossene Events auf | `/api/internal/resolve-events` |
+| `DeleteOldSnapshots` | taeglich um 03:00 | Bereinigt alte Snapshot-Daten | `/api/internal/delete-old-snapshots` |
+
+## Architektur in Kurzform
+
+1. Azure Functions startet den jeweiligen Timer-Trigger.
+2. Die Function liest `BackendApi:BaseUrl` und `InternalApi:Key` aus der Konfiguration.
+3. Ueber `HttpClientFactory` wird ein `POST` Request an den internen Backend-Endpunkt gesendet.
+4. Fehler werden geloggt und als Exception geworfen, erfolgreiche Antworten werden protokolliert.
+
+## Lokale Entwicklung
+
+### Voraussetzungen
+
+- .NET 10 SDK
+- Azure Functions Core Tools v4
+- Azurite oder ein anderer lokaler Storage-Ersatz, falls `UseDevelopmentStorage=true` verwendet wird
+
+### Lokale Konfiguration
+
+Lege fuer die lokale Entwicklung eine `local.settings.json` mit eigenen Werten an. Beispiel:
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "BackendApi:BaseUrl": "http://localhost:5037",
+    "InternalApi:Key": "replace-me"
+  }
+}
+```
+
+### Starten
+
+```bash
+dotnet restore
+func start
+```
+
+Alternativ:
+
+```bash
+dotnet build
+```
+
+und dann ueber die Azure Functions Tools oder Visual Studio starten.
+
+## Deployment
+
+Die App ist fuer ein Azure-Deployment als Linux Function App ausgelegt. Sensible Deploy-Dateien wie Publish-Profile oder lokale Settings sollten nicht in ein oeffentliches Portfolio-Repository aufgenommen werden.
+
+## Portfolio-Kontext
+
+Dieses Projekt zeigt:
+
+- geplante Backend-Automatisierung mit Azure Functions
+- Trennung von Scheduler und eigentlicher Business-Logik im Backend
+- abgesicherte interne Endpunktaufrufe per Konfiguration und Header
+- observability-orientiertes Logging mit Application Insights
+
+## Verbesserungsmoeglichkeiten
+
+- Retry-Strategien und Timeouts explizit konfigurieren
+- Typed oder named `HttpClient` Registrierung einfuehren
+- Fehlerbehandlung differenzieren statt generischer `Exception`
+- `RunOnStartup` fuer produktive Jobs gezielt ueberpruefen
+- Health- und Monitoring-Dokumentation ergaenzen
