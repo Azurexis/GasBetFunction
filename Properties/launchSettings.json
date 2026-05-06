@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "GasBetFunction": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7105",
+      "launchBrowser": false
+    }
+  }
+}
