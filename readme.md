@@ -1,6 +1,6 @@
 # GasBet Function
 
-Azure Function App fuer geplante Hintergrundjobs im GasBet-Projekt. Die Function App fuehrt zeitgesteuert interne Backend-Endpunkte aus, um Quoten zu aktualisieren, Events zu erzeugen, Events zu sperren, Ergebnisse aufzulösen und alte Snapshots zu löschen.
+Azure Function App fuer geplante Hintergrundjobs im GasBet-Projekt. Die Function App fuehrt zeitgesteuert interne Backend-Endpunkte aus, um Quoten zu aktualisieren, Events zu erzeugen, Events zu sperren, Ergebnisse aufzulÃ¶sen und alte Snapshots zu lÃ¶schen.
 
 ## Tech Stack
 
@@ -13,17 +13,17 @@ Azure Function App fuer geplante Hintergrundjobs im GasBet-Projekt. Die Function
 
 ## Was die Function App macht
 
-Die Function App enthält mehrere Timer-Trigger, die interne API-Endpunkte des Backends per `POST` aufrufen. Zur Authentifizierung wird ein interner API-Key über den Header `X-Internal-Key` mitgegeben.
+Die Function App enthÃ¤lt mehrere Timer-Trigger, die interne API-Endpunkte des Backends per `POST` aufrufen. Zur Authentifizierung wird ein interner API-Key Ã¼ber den Header `X-Internal-Key` mitgegeben.
 
 Aktuell sind folgende Jobs vorhanden:
 
 | Function | Zeitplan | Zweck | Endpoint |
 | --- | --- | --- | --- |
 | `PollPrices` | jede Minute | Holt aktuelle Preis-/Quotendaten | `/api/internal/poll-prices` |
-| `CreateEvents` | stündlich um Minute 0 | Erzeugt neue Events | `/api/internal/create-events` |
-| `LockEvents` | stündlich bei Minute 0, Sekunde 5 | Sperrt Events rechtzeitig vor Start | `/api/internal/lock-events` |
-| `ResolveEvents` | stündlich bei Minute 0, Sekunde 10 | Loest abgeschlossene Events auf | `/api/internal/resolve-events` |
-| `DeleteOldSnapshots` | täglich um 03:00 | Bereinigt alte Snapshot-Daten | `/api/internal/delete-old-snapshots` |
+| `CreateEvents` | stÃ¼ndlich um Minute 0 | Erzeugt neue Events | `/api/internal/create-events` |
+| `LockEvents` | stÃ¼ndlich bei Minute 0, Sekunde 5 | Sperrt Events rechtzeitig vor Start | `/api/internal/lock-events` |
+| `ResolveEvents` | stÃ¼ndlich bei Minute 0, Sekunde 10 | LÃ¶st abgeschlossene Events auf | `/api/internal/resolve-events` |
+| `DeleteOldSnapshots` | tÃ¤glich um 03:00 | Bereinigt alte Snapshot-Daten | `/api/internal/delete-old-snapshots` |
 
 ## Architektur in Kurzform
 
@@ -69,11 +69,11 @@ Alternativ:
 dotnet build
 ```
 
-und dann über die Azure Functions Tools oder Visual Studio starten.
+und dann Ã¼ber die Azure Functions Tools oder Visual Studio starten.
 
 ## Deployment
 
-Die App ist für ein Azure-Deployment als Linux Function App ausgelegt. Sensible Deploy-Dateien wie Publish-Profile oder lokale Settings sollten nicht in ein öffentliches Portfolio-Repository aufgenommen werden.
+Die App ist fÃ¼r ein Azure-Deployment als Linux Function App ausgelegt. Sensible Deploy-Dateien wie Publish-Profile oder lokale Settings sollten nicht in ein Ã¶ffentliches Portfolio-Repository aufgenommen werden.
 
 ## Portfolio-Kontext
 
@@ -84,9 +84,9 @@ Dieses Projekt zeigt:
 - abgesicherte interne Endpunktaufrufe per Konfiguration und Header
 - observability-orientiertes Logging mit Application Insights
 
-## Verbesserungsmöglichkeiten
+## VerbesserungsmÃ¶glichkeiten
 
 - Retry-Strategien und Timeouts explizit konfigurieren
-- Typed oder named `HttpClient` Registrierung einführen
+- Typed oder named `HttpClient` Registrierung einfÃ¼hren
 - Fehlerbehandlung differenzieren statt generischer `Exception`
-- Health- und Monitoring-Dokumentation ergänzen
+- Health- und Monitoring-Dokumentation ergÃ¤nzen
