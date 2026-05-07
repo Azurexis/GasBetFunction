@@ -42,7 +42,7 @@ Aktuell sind folgende Jobs vorhanden:
 
 ### Lokale Konfiguration
 
-Lege fuer die lokale Entwicklung eine `local.settings.json` mit eigenen Werten an. Beispiel:
+Lege für die lokale Entwicklung eine `local.settings.json` mit eigenen Werten an. Beispiel:
 
 ```json
 {
